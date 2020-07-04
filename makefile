@@ -1,0 +1,5 @@
+.OBJ.ASM:
+  TASM $**
+
+TICTAC.COM: TICTAC.OBJ
+  TLINK/t $**
