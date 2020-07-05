@@ -49,9 +49,13 @@ GREEN   equ     002h
 CODESEG
 STARTUPCODE
 PROC    main
-        ;clear the screen and hide the cursor
-        mov     ax,00002h
+        ;es segment is for graphics
+        mov     ax,VIDMEM
+        mov     es,ax
+        ;clear the screen
+        mov     ax,0003h
         int     10h
+        ;hide the cursor
         mov     ah,002h
         xor     bx,bx
         mov     dl,0
@@ -98,6 +102,9 @@ __win:  mov     ah,[byte ptr players]
         mov     [byte ptr win],ah
         mov     dx,offset win
 __done: call    print_board
+        ;restore es
+        mov     ax,ds
+        mov     es,ax
         ;put cursor on screen
         push    dx
         mov     ah,002h
@@ -157,7 +164,7 @@ __row:  mov     al,ah
         and     al,[byte ptr di + OFF_ROW * 2 - OFF_COL * 2]
         cmp     al,ah
         je      __win
-        clc
+__nowin:clc
         ret
 __win:  stc
         ret
@@ -166,9 +173,7 @@ ENDP    check_winner
 
 ;Print the board centered on the screen
 PROC    print_board
-USES    ax,es,di,si,cx
-        mov     ax,VIDMEM
-        mov     es,ax
+USES    ax,di,si,cx
         mov     di,BSTART
         mov     si,offset board
         mov     cx,DHEIGHT
@@ -181,9 +186,7 @@ ENDP    print_board
 
 ;Print the prompt centered under the board
 PROC    print_prompt
-USES    ax,bx,es,di,si
-        mov     ax,VIDMEM
-        mov     es,ax
+USES    ax,bx,di,si
         mov     di,PSTART
         mov     si,offset prompt
         mov     al,[byte ptr players]
